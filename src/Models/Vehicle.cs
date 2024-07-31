@@ -10,7 +10,8 @@ public class Vehicle
     public string ImageUrl { get; set; }
 
     public int CarMakeId { get; set; }
-    public CarMake carMake { get; set; }
+    public CarMake CarMake { get; set; }
     public int CategoryId { get; set; }
     public Category Category { get; set; }
 }
+    
