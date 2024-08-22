@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace VehiclesAPI.Models;
 
@@ -14,10 +15,11 @@ public class Vehicle
 
     [MaxLength(300)]
     public string ImageUrl { get; set; }
-
     public int CarMakeId { get; set; }
-    public CarMake CarMake { get; set; }
+    [JsonIgnore]
+    public CarMake? CarMake { get; set; }
     public int CategoryId { get; set; }
-    public Category Category { get; set; }
+    [JsonIgnore]
+    public Category? Category { get; set; }
 }
     
