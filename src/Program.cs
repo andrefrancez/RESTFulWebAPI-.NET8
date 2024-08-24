@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using VehiclesAPI.Data;
 using VehiclesAPI.Interfaces;
+using VehiclesAPI.Middlewares;
 using VehiclesAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.ConfigureExceptionsHandler();
 }
 
 app.UseHttpsRedirection();
