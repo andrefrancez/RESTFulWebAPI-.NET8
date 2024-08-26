@@ -24,22 +24,22 @@ public class VehicleRepository : IVehicleRepository
         return _context.Vehicles.FirstOrDefault(v => v.Id == id);
     }
 
-    public bool CreateVehicle(Vehicle vehicle)
+    public Vehicle CreateVehicle(Vehicle vehicle)
     {
         _context.Vehicles.Add(vehicle);
-        return _context.SaveChanges() > 0;
+        return vehicle;
     }
 
-    public bool UpdateVehicle(Vehicle vehicle)
+    public Vehicle UpdateVehicle(Vehicle vehicle)
     {
         if(vehicle is null)
             throw new ArgumentNullException(nameof(vehicle));
 
         _context.Entry(vehicle).State = EntityState.Modified;
-        return _context.SaveChanges() > 0;
+        return vehicle;
     }
 
-    public bool DeleteVehicleById(int id)
+    public Vehicle DeleteVehicleById(int id)
     {
         var vehicle = _context.Vehicles.Find(id);
 
@@ -47,6 +47,6 @@ public class VehicleRepository : IVehicleRepository
             throw new ArgumentException($"No vehicle found with Id {id}", nameof(id));
 
         _context.Vehicles.Remove(vehicle);
-        return _context.SaveChanges() > 0;
+        return vehicle;
     }
 }

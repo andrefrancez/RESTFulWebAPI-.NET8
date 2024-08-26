@@ -33,22 +33,22 @@ public class CategoryRepository : ICategoryRepository
         return _context.Categories.FirstOrDefault(c => c.Id == id);
     }
 
-    public bool CreateCategory(Category category)
+    public Category CreateCategory(Category category)
     {
         _context.Categories.Add(category);
-        return _context.SaveChanges() > 0;
+        return category;
     }
 
-    public bool UpdateCategory(Category category)
+    public Category UpdateCategory(Category category)
     {
         if(category is null)
             throw new ArgumentNullException(nameof(category));
 
         _context.Entry(category).State = EntityState.Modified;
-        return _context.SaveChanges() > 0;
+        return category;
     }
 
-    public bool DeleteCategoryById(int id)
+    public Category DeleteCategoryById(int id)
     {
         var category = _context.Categories.Find(id);
 
@@ -56,6 +56,6 @@ public class CategoryRepository : ICategoryRepository
             throw new ArgumentException($"No category found with Id {id}", nameof(id));
 
         _context.Categories.Remove(category);
-        return _context.SaveChanges() > 0;
+        return category;
     }
 }

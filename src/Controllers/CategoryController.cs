@@ -8,17 +8,17 @@ namespace VehiclesAPI.Controllers;
 [ApiController]
 public class CategoryController : ControllerBase
 {
-    private readonly ICategoryRepository _categoryRepository;
+    private readonly IUnityOfWork _unityOfWork;
 
-    public CategoryController(ICategoryRepository categoryRepository)
+    public CategoryController(IUnityOfWork unityOfWork)
     {
-        _categoryRepository = categoryRepository;
+        _unityOfWork = unityOfWork;
     }
 
     [HttpGet]
     public IActionResult GetCategories()
     {
-        var categories = _categoryRepository.GetCategories();
+        var categories = _unityOfWork.CategoryRepository.GetCategories();
 
         if (categories is null)
             return NotFound();
@@ -29,7 +29,7 @@ public class CategoryController : ControllerBase
     [HttpGet("{categoryId}", Name="GetCategory")]
     public IActionResult GetCategory(int categoryId)
     {
-        var category = _categoryRepository.GetCategoryById(categoryId);
+        var category = _unityOfWork.CategoryRepository.GetCategoryById(categoryId);
 
         if(category is null)
             return NotFound();
@@ -40,7 +40,7 @@ public class CategoryController : ControllerBase
     [HttpGet("vehicle/{categoryId}")]
     public IActionResult GetVehicleByCategory(int categoryId)
     {
-        var vehicles = _categoryRepository.GetVehiclesByCategory(categoryId);
+        var vehicles = _unityOfWork.CategoryRepository.GetVehiclesByCategory(categoryId);
 
         if(vehicles is null)
             return NotFound();
@@ -54,7 +54,8 @@ public class CategoryController : ControllerBase
         if(category is null)
             return BadRequest();
 
-        var categoryCreated = _categoryRepository.CreateCategory(category);
+        _unityOfWork.CategoryRepository.CreateCategory(category);
+        _unityOfWork.SaveChanges();
 
         return new CreatedAtRouteResult("GetCategory", new { categoryId = category.Id }, category);
     }
@@ -63,9 +64,10 @@ public class CategoryController : ControllerBase
     public IActionResult UpdateCategory(int categoryId, Category category)
     {
         if(categoryId != category.Id)
-            return BadRequest();
+            return BadRequest("ID mismatch!");
 
-        var categoryUpdated = _categoryRepository.UpdateCategory(category);
+        _unityOfWork.CategoryRepository.UpdateCategory(category);
+        _unityOfWork.SaveChanges();
 
         return NoContent();
     }
@@ -73,12 +75,8 @@ public class CategoryController : ControllerBase
     [HttpDelete("{categoryId}")]
     public IActionResult DeleteCategory(int categoryId)
     {
-        var category = _categoryRepository.GetCategoryById(categoryId);
-
-        if(category == null)
-            return NotFound();
-
-        var categoryDeleted = _categoryRepository.DeleteCategoryById(categoryId);
+        _unityOfWork.CategoryRepository.DeleteCategoryById(categoryId);
+        _unityOfWork.SaveChanges();
 
         return NoContent();
     }

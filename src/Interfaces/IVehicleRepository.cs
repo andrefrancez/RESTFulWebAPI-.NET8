@@ -6,7 +6,7 @@ public interface IVehicleRepository
 {
     IEnumerable<Vehicle> GetVehicles();
     Vehicle GetVehicleById(int id);
-    bool CreateVehicle(Vehicle vehicle);
-    bool UpdateVehicle(Vehicle vehicle);
-    bool DeleteVehicleById(int id);
+    Vehicle CreateVehicle(Vehicle vehicle);
+    Vehicle UpdateVehicle(Vehicle vehicle);
+    Vehicle DeleteVehicleById(int id);
 }

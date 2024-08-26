@@ -8,18 +8,17 @@ namespace VehiclesAPI.Controllers;
 [ApiController]
 public class CarMakeController : ControllerBase
 {
-    private readonly ICarMakeRepository _carMakeRepository;
+    private readonly IUnityOfWork _unityOfWork;
 
-    public CarMakeController(ICarMakeRepository carMakeRepository)
+    public CarMakeController(IUnityOfWork unityOfWork)
     {
-        _carMakeRepository = carMakeRepository;
+        _unityOfWork = unityOfWork;
     }
 
     [HttpGet]
     public IActionResult GetCarMakes()
     {
-        throw new Exception("testestetset");
-        var carMakes = _carMakeRepository.GetCarMakes();
+        var carMakes = _unityOfWork.CarMakeRepository.GetCarMakes();
 
         return Ok(carMakes);
     }
@@ -27,7 +26,7 @@ public class CarMakeController : ControllerBase
     [HttpGet("{Id}")]
     public IActionResult GetCarMake(int Id)
     {
-        var carMake = _carMakeRepository.GetCarMakeById(Id);
+        var carMake = _unityOfWork.CarMakeRepository.GetCarMakeById(Id);
 
         if (carMake is null)
             return NotFound();
@@ -38,7 +37,7 @@ public class CarMakeController : ControllerBase
     [HttpGet("vehicle/{Id}", Name = "GetCarMake")]
     public IActionResult GetVehiclesByCarMake(int Id)
     {
-        var vehicles = _carMakeRepository.GetVehiclesByCarMake(Id);
+        var vehicles = _unityOfWork.CarMakeRepository.GetVehiclesByCarMake(Id);
 
         if (vehicles is null)
             return NotFound();
@@ -52,7 +51,8 @@ public class CarMakeController : ControllerBase
         if (carMake is null)
             return BadRequest();
 
-        _carMakeRepository.CreateCarMake(carMake);
+        _unityOfWork.CarMakeRepository.CreateCarMake(carMake);
+        _unityOfWork.SaveChanges();
 
         return new CreatedAtRouteResult("GetCarMake", new { id = carMake.Id }, carMake);
     }
@@ -61,9 +61,10 @@ public class CarMakeController : ControllerBase
     public IActionResult UpdateCarMake(int Id, CarMake carMake)
     {
         if (Id != carMake.Id)
-            return BadRequest();
+            return BadRequest("ID mismatch!");
 
-        _carMakeRepository.UpdateCarMake(carMake);
+        _unityOfWork.CarMakeRepository.UpdateCarMake(carMake);
+        _unityOfWork.SaveChanges();
 
         return NoContent();
     }
@@ -71,7 +72,8 @@ public class CarMakeController : ControllerBase
     [HttpDelete("{Id}")]
     public IActionResult DeleteCarMake(int Id)
     {
-        _carMakeRepository.DeleteCarMakeById(Id);
+        _unityOfWork.CarMakeRepository.DeleteCarMakeById(Id);
+        _unityOfWork.SaveChanges();
 
         return NoContent();
     }

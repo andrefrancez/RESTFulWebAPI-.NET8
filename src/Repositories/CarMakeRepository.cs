@@ -33,22 +33,22 @@ public class CarMakeRepository : ICarMakeRepository
         return _context.CarMakes.FirstOrDefault(cm => cm.Id == id);
     }
 
-    public bool CreateCarMake(CarMake carMake)
+    public CarMake CreateCarMake(CarMake carMake)
     {
         _context.CarMakes.Add(carMake);
-        return _context.SaveChanges() > 0;
+        return carMake;
     }
 
-    public bool UpdateCarMake(CarMake carMake)
+    public CarMake UpdateCarMake(CarMake carMake)
     {
         if (carMake is null)
             throw new ArgumentNullException(nameof(carMake));
 
         _context.Entry(carMake).State = EntityState.Modified;
-        return _context.SaveChanges() > 0;
+        return carMake;
     }
 
-    public bool DeleteCarMakeById(int id)
+    public CarMake DeleteCarMakeById(int id)
     {
         var carMake = _context.CarMakes.Find(id);
 
@@ -56,6 +56,6 @@ public class CarMakeRepository : ICarMakeRepository
             throw new ArgumentException($"No car make found with Id {id}", nameof(id));
 
         _context.CarMakes.Remove(carMake);
-        return _context.SaveChanges() > 0;
+        return carMake;
     }
 }
