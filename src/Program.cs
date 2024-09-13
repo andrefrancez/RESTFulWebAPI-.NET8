@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using VehiclesAPI.Data;
 using VehiclesAPI.Interfaces;
+using VehiclesAPI.Mappings;
 using VehiclesAPI.Middlewares;
 using VehiclesAPI.Repositories;
 
@@ -14,6 +15,7 @@ builder.Services.AddScoped<ICarMakeRepository, CarMakeRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IUnityOfWork, UnitOfWork>();
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

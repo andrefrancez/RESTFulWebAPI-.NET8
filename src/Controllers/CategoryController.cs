@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using VehiclesAPI.Dto;
 using VehiclesAPI.Interfaces;
 using VehiclesAPI.Models;
 
@@ -9,10 +11,12 @@ namespace VehiclesAPI.Controllers;
 public class CategoryController : ControllerBase
 {
     private readonly IUnityOfWork _unityOfWork;
+    private readonly IMapper _mapper;
 
-    public CategoryController(IUnityOfWork unityOfWork)
+    public CategoryController(IUnityOfWork unityOfWork, IMapper mapper)
     {
         _unityOfWork = unityOfWork;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -23,7 +27,9 @@ public class CategoryController : ControllerBase
         if (categories is null)
             return NotFound();
 
-        return Ok(categories);
+        var categoriesDTO = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+
+        return Ok(categoriesDTO);
     }
 
     [HttpGet("{categoryId}", Name="GetCategory")]
@@ -34,7 +40,9 @@ public class CategoryController : ControllerBase
         if(category is null)
             return NotFound();
 
-        return Ok(category);
+        var categoryDTO = _mapper.Map<IEnumerable<CategoryDTO>>(category);
+
+        return Ok(categoryDTO);
     }
 
     [HttpGet("vehicle/{categoryId}")]
@@ -45,28 +53,36 @@ public class CategoryController : ControllerBase
         if(vehicles is null)
             return NotFound();
 
-        return Ok(vehicles);
+        var vehiclesDTO = _mapper.Map<IEnumerable<Vehicle>>(vehicles);
+
+        return Ok(vehiclesDTO);
     }
 
     [HttpPost]
-    public IActionResult CreateCategory(Category category)
+    public IActionResult CreateCategory(CategoryDTO categoryDTO)
     {
-        if(category is null)
+        if(categoryDTO is null)
             return BadRequest();
 
-        _unityOfWork.CategoryRepository.CreateCategory(category);
+        var category = _mapper.Map<Category>(categoryDTO);
+
+        var createCategory = _unityOfWork.CategoryRepository.CreateCategory(category);
         _unityOfWork.SaveChanges();
 
-        return new CreatedAtRouteResult("GetCategory", new { categoryId = category.Id }, category);
+        var createCategoryDTO = _mapper.Map<CategoryDTO>(createCategory);
+
+        return new CreatedAtRouteResult("GetCategory", new { categoryId = createCategoryDTO.Id }, createCategoryDTO);
     }
 
     [HttpPut("{categoryId}")]
-    public IActionResult UpdateCategory(int categoryId, Category category)
+    public IActionResult UpdateCategory(int Id, CategoryDTO categoryDTO)
     {
-        if(categoryId != category.Id)
+        if(Id != categoryDTO.Id)
             return BadRequest("ID mismatch!");
 
-        _unityOfWork.CategoryRepository.UpdateCategory(category);
+        var category = _mapper.Map<Category>(categoryDTO);
+
+        var updateCategory = _unityOfWork.CategoryRepository.UpdateCategory(category);
         _unityOfWork.SaveChanges();
 
         return NoContent();

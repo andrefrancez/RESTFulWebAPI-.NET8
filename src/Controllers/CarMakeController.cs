@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using VehiclesAPI.Dto;
 using VehiclesAPI.Interfaces;
 using VehiclesAPI.Models;
 
@@ -9,10 +11,12 @@ namespace VehiclesAPI.Controllers;
 public class CarMakeController : ControllerBase
 {
     private readonly IUnityOfWork _unityOfWork;
+    private readonly IMapper _mapper;
 
-    public CarMakeController(IUnityOfWork unityOfWork)
+    public CarMakeController(IUnityOfWork unityOfWork, IMapper mapper)
     {
         _unityOfWork = unityOfWork;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -20,7 +24,9 @@ public class CarMakeController : ControllerBase
     {
         var carMakes = _unityOfWork.CarMakeRepository.GetCarMakes();
 
-        return Ok(carMakes);
+        var carMakesDTO = _mapper.Map<IEnumerable<CarMakeDTO>>(carMakes);
+
+        return Ok(carMakesDTO);
     }
 
     [HttpGet("{Id}")]
@@ -31,7 +37,9 @@ public class CarMakeController : ControllerBase
         if (carMake is null)
             return NotFound();
 
-        return Ok(carMake);
+        var carMakeDTO = _mapper.Map<CarMakeDTO>(carMake);
+
+        return Ok(carMakeDTO);
     }
 
     [HttpGet("vehicle/{Id}", Name = "GetCarMake")]
@@ -42,28 +50,36 @@ public class CarMakeController : ControllerBase
         if (vehicles is null)
             return NotFound();
 
-        return Ok(vehicles);
+        var vehiclesDTO = _mapper.Map<IEnumerable<VehicleDTO>>(vehicles);
+
+        return Ok(vehiclesDTO);
     }
 
     [HttpPost]
-    public IActionResult CreateCarMake(CarMake carMake)
+    public IActionResult CreateCarMake(CarMakeDTO carMakeDTO)
     {
-        if (carMake is null)
+        if (carMakeDTO is null)
             return BadRequest();
 
-        _unityOfWork.CarMakeRepository.CreateCarMake(carMake);
+        var carMake = _mapper.Map<CarMake>(carMakeDTO);
+
+        var CreateCarMake = _unityOfWork.CarMakeRepository.CreateCarMake(carMake);
         _unityOfWork.SaveChanges();
 
-        return new CreatedAtRouteResult("GetCarMake", new { id = carMake.Id }, carMake);
+        var createCarMakeDTO = _mapper.Map<CarMakeDTO>(CreateCarMake);
+
+        return new CreatedAtRouteResult("GetCarMake", new { id = createCarMakeDTO.Id }, createCarMakeDTO);
     }
 
     [HttpPut("{Id}")]
-    public IActionResult UpdateCarMake(int Id, CarMake carMake)
+    public IActionResult UpdateCarMake(int Id, CarMakeDTO carMakeDTO)
     {
-        if (Id != carMake.Id)
+        if (Id != carMakeDTO.Id)
             return BadRequest("ID mismatch!");
 
-        _unityOfWork.CarMakeRepository.UpdateCarMake(carMake);
+        var carMake = _mapper.Map<CarMake>(carMakeDTO);
+
+        var updateCarMake = _unityOfWork.CarMakeRepository.UpdateCarMake(carMake);
         _unityOfWork.SaveChanges();
 
         return NoContent();

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using VehiclesAPI.Dto;
 using VehiclesAPI.Interfaces;
 using VehiclesAPI.Models;
 
@@ -9,10 +11,12 @@ namespace VehiclesAPI.Controllers;
 public class VehicleController : ControllerBase
 {
     private readonly IUnityOfWork _unityOfWork;
+    private readonly IMapper _mapper;
 
-    public VehicleController(IUnityOfWork unityOfWork)
+    public VehicleController(IUnityOfWork unityOfWork, IMapper mapper)
     {
         _unityOfWork = unityOfWork;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -23,7 +27,9 @@ public class VehicleController : ControllerBase
         if (vehicles is null)
             return NotFound();
 
-        return Ok(vehicles);
+        var vehiclesDTO = _mapper.Map<IEnumerable<VehicleDTO>>(vehicles);
+
+        return Ok(vehiclesDTO);
     }
 
     [HttpGet("{vehicleId}", Name = "GetVehicle")]
@@ -34,14 +40,21 @@ public class VehicleController : ControllerBase
         if(vehicle is null)
             return NotFound();
 
-        return Ok(vehicle);
+        var vehicleDTO = _mapper.Map<VehicleDTO>(vehicle);
+
+        return Ok(vehicleDTO);
     }
 
     [HttpPost]
-    public IActionResult CreateVehicle(Vehicle vehicle)
+    public IActionResult CreateVehicle(int carMakeId, int categoryId, VehicleDTO vehicleDTO)
     {
-        if (vehicle is null)
+        if (vehicleDTO is null)
             return BadRequest();
+
+        var vehicle = _mapper.Map<Vehicle>(vehicleDTO);
+
+        vehicle.CarMakeId = carMakeId;
+        vehicle.CategoryId = categoryId;
 
         var categoryExists = _unityOfWork.CategoryRepository.GetCategoryById(vehicle.CategoryId) != null;
         var carMakeExists = _unityOfWork.CarMakeRepository.GetCarMakeById(vehicle.CarMakeId) != null;
@@ -52,19 +65,23 @@ public class VehicleController : ControllerBase
         if (!carMakeExists)
             return BadRequest("Invalid Car Make ID.");
 
-        _unityOfWork.VehicleRepository.CreateVehicle(vehicle);
+        var createVehicle = _unityOfWork.VehicleRepository.CreateVehicle(vehicle);
         _unityOfWork.SaveChanges();
 
-        return new CreatedAtRouteResult("GetVehicle", new { vehicleId = vehicle.Id }, vehicle);
+        var createVehicleDTO = _mapper.Map<VehicleDTO>(createVehicle);
+
+        return new CreatedAtRouteResult("GetVehicle", new { vehicleId = createVehicleDTO.Id }, createVehicleDTO);
     }
 
     [HttpPut("{vehicleId}")]
-    public IActionResult UpdateVehicle(int vehicleId, Vehicle vehicle)
+    public IActionResult UpdateVehicle(int Id, VehicleDTO vehicleDTO)
     {
-        if(vehicleId != vehicle.Id)
+        if(Id != vehicleDTO.Id)
             return BadRequest("ID mismatch!");
 
-        _unityOfWork.VehicleRepository.UpdateVehicle(vehicle);
+        var vehicle = _mapper.Map<Vehicle>(vehicleDTO);
+
+        var updateVehicle = _unityOfWork.VehicleRepository.UpdateVehicle(vehicle);
         _unityOfWork.SaveChanges();
 
         return NoContent();
