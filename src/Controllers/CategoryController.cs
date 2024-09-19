@@ -20,9 +20,9 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetCategories()
+    public async Task<IActionResult> GetCategories()
     {
-        var categories = _unityOfWork.CategoryRepository.GetCategories();
+        var categories = await _unityOfWork.CategoryRepository.GetCategoriesAsync();
 
         if (categories is null)
             return NotFound();
@@ -33,9 +33,9 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("{categoryId}", Name="GetCategory")]
-    public IActionResult GetCategory(int categoryId)
+    public async Task<IActionResult> GetCategory(int categoryId)
     {
-        var category = _unityOfWork.CategoryRepository.GetCategoryById(categoryId);
+        var category = await _unityOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
 
         if(category is null)
             return NotFound();
@@ -46,9 +46,9 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("vehicle/{categoryId}")]
-    public IActionResult GetVehicleByCategory(int categoryId)
+    public async Task<IActionResult> GetVehicleByCategory(int categoryId)
     {
-        var vehicles = _unityOfWork.CategoryRepository.GetVehiclesByCategory(categoryId);
+        var vehicles = await _unityOfWork.CategoryRepository.GetVehiclesByCategoryAsync(categoryId);
 
         if(vehicles is null)
             return NotFound();
@@ -59,7 +59,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CreateCategory(CategoryDTO categoryDTO)
+    public async Task<IActionResult> CreateCategory(CategoryDTO categoryDTO)
     {
         if(categoryDTO is null)
             return BadRequest();
@@ -67,7 +67,7 @@ public class CategoryController : ControllerBase
         var category = _mapper.Map<Category>(categoryDTO);
 
         var createCategory = _unityOfWork.CategoryRepository.CreateCategory(category);
-        _unityOfWork.SaveChanges();
+        await _unityOfWork.SaveChangesAsync();
 
         var createCategoryDTO = _mapper.Map<CategoryDTO>(createCategory);
 
@@ -75,7 +75,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut("{categoryId}")]
-    public IActionResult UpdateCategory(int Id, CategoryDTO categoryDTO)
+    public async Task<IActionResult> UpdateCategory(int Id, CategoryDTO categoryDTO)
     {
         if(Id != categoryDTO.Id)
             return BadRequest("ID mismatch!");
@@ -83,16 +83,16 @@ public class CategoryController : ControllerBase
         var category = _mapper.Map<Category>(categoryDTO);
 
         var updateCategory = _unityOfWork.CategoryRepository.UpdateCategory(category);
-        _unityOfWork.SaveChanges();
+        await _unityOfWork.SaveChangesAsync();
 
         return NoContent();
     }
 
     [HttpDelete("{categoryId}")]
-    public IActionResult DeleteCategory(int categoryId)
+    public async Task<IActionResult> DeleteCategory(int categoryId)
     {
         _unityOfWork.CategoryRepository.DeleteCategoryById(categoryId);
-        _unityOfWork.SaveChanges();
+        await _unityOfWork.SaveChangesAsync();
 
         return NoContent();
     }

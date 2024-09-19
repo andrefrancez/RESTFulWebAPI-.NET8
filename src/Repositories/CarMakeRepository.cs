@@ -14,23 +14,23 @@ public class CarMakeRepository : ICarMakeRepository
         _context = context;
     }
 
-    public IEnumerable<CarMake> GetCarMakes()
+    public async Task<IEnumerable<CarMake>> GetCarMakesAsync()
     {
-        return _context.CarMakes.ToList();
+        return await _context.CarMakes.ToListAsync();
     }
 
-    public IEnumerable<Vehicle> GetVehiclesByCarMake(int id)
+    public async Task<IEnumerable<Vehicle>> GetVehiclesByCarMakeAsync(int id)
     {
-        return _context.Vehicles
+        return await _context.Vehicles
                    .Where(v => v.CarMakeId == id)
                    .Include(v => v.CarMake)
                    .Include(v => v.Category)
-                   .ToList();
+                   .ToListAsync();
     }
 
-    public CarMake GetCarMakeById(int id)
+    public async Task<CarMake> GetCarMakeByIdAsync(int id)
     {
-        return _context.CarMakes.FirstOrDefault(cm => cm.Id == id);
+        return await _context.CarMakes.FirstOrDefaultAsync(cm => cm.Id == id);
     }
 
     public CarMake CreateCarMake(CarMake carMake)

@@ -20,9 +20,9 @@ public class CarMakeController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetCarMakes()
+    public async Task<IActionResult> GetCarMakes()
     {
-        var carMakes = _unityOfWork.CarMakeRepository.GetCarMakes();
+        var carMakes = await _unityOfWork.CarMakeRepository.GetCarMakesAsync();
 
         var carMakesDTO = _mapper.Map<IEnumerable<CarMakeDTO>>(carMakes);
 
@@ -30,9 +30,9 @@ public class CarMakeController : ControllerBase
     }
 
     [HttpGet("{Id}")]
-    public IActionResult GetCarMake(int Id)
+    public async Task<IActionResult> GetCarMake(int Id)
     {
-        var carMake = _unityOfWork.CarMakeRepository.GetCarMakeById(Id);
+        var carMake = await _unityOfWork.CarMakeRepository.GetCarMakeByIdAsync(Id);
 
         if (carMake is null)
             return NotFound();
@@ -43,9 +43,9 @@ public class CarMakeController : ControllerBase
     }
 
     [HttpGet("vehicle/{Id}", Name = "GetCarMake")]
-    public IActionResult GetVehiclesByCarMake(int Id)
+    public async Task<IActionResult> GetVehiclesByCarMake(int Id)
     {
-        var vehicles = _unityOfWork.CarMakeRepository.GetVehiclesByCarMake(Id);
+        var vehicles = await _unityOfWork.CarMakeRepository.GetVehiclesByCarMakeAsync(Id);
 
         if (vehicles is null)
             return NotFound();
@@ -56,7 +56,7 @@ public class CarMakeController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CreateCarMake(CarMakeDTO carMakeDTO)
+    public async Task<IActionResult> CreateCarMake(CarMakeDTO carMakeDTO)
     {
         if (carMakeDTO is null)
             return BadRequest();
@@ -64,7 +64,7 @@ public class CarMakeController : ControllerBase
         var carMake = _mapper.Map<CarMake>(carMakeDTO);
 
         var CreateCarMake = _unityOfWork.CarMakeRepository.CreateCarMake(carMake);
-        _unityOfWork.SaveChanges();
+        await _unityOfWork.SaveChangesAsync();
 
         var createCarMakeDTO = _mapper.Map<CarMakeDTO>(CreateCarMake);
 
@@ -72,7 +72,7 @@ public class CarMakeController : ControllerBase
     }
 
     [HttpPut("{Id}")]
-    public IActionResult UpdateCarMake(int Id, CarMakeDTO carMakeDTO)
+    public async Task<IActionResult> UpdateCarMake(int Id, CarMakeDTO carMakeDTO)
     {
         if (Id != carMakeDTO.Id)
             return BadRequest("ID mismatch!");
@@ -80,16 +80,16 @@ public class CarMakeController : ControllerBase
         var carMake = _mapper.Map<CarMake>(carMakeDTO);
 
         var updateCarMake = _unityOfWork.CarMakeRepository.UpdateCarMake(carMake);
-        _unityOfWork.SaveChanges();
+        await _unityOfWork.SaveChangesAsync();
 
         return NoContent();
     }
 
     [HttpDelete("{Id}")]
-    public IActionResult DeleteCarMake(int Id)
+    public async Task<IActionResult> DeleteCarMake(int Id)
     {
         _unityOfWork.CarMakeRepository.DeleteCarMakeById(Id);
-        _unityOfWork.SaveChanges();
+        await _unityOfWork.SaveChangesAsync();
 
         return NoContent();
     }

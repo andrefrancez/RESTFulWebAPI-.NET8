@@ -8,5 +8,5 @@ public interface IUnityOfWork
 
     IVehicleRepository VehicleRepository { get; }
 
-    void SaveChanges();
+    Task SaveChangesAsync();
 }

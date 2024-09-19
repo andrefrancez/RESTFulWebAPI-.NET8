@@ -4,9 +4,9 @@ namespace VehiclesAPI.Interfaces;
 
 public interface ICarMakeRepository
 {
-    IEnumerable<CarMake> GetCarMakes();
-    IEnumerable<Vehicle> GetVehiclesByCarMake(int id);
-    CarMake GetCarMakeById(int id);
+    Task<IEnumerable<CarMake>> GetCarMakesAsync();
+    Task<IEnumerable<Vehicle>> GetVehiclesByCarMakeAsync(int id);
+    Task<CarMake> GetCarMakeByIdAsync(int id);
     CarMake CreateCarMake(CarMake carMake);
     CarMake UpdateCarMake(CarMake carMake);
     CarMake DeleteCarMakeById(int id);

@@ -20,9 +20,9 @@ public class VehicleController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetVehicles()
+    public async Task<IActionResult> GetVehicles()
     {
-        var vehicles = _unityOfWork.VehicleRepository.GetVehicles();
+        var vehicles = await _unityOfWork.VehicleRepository.GetVehiclesAsync();
 
         if (vehicles is null)
             return NotFound();
@@ -33,9 +33,9 @@ public class VehicleController : ControllerBase
     }
 
     [HttpGet("{vehicleId}", Name = "GetVehicle")]
-    public IActionResult GetVehicle(int vehicleId)
+    public async Task<IActionResult> GetVehicle(int vehicleId)
     {
-        var vehicle = _unityOfWork.VehicleRepository.GetVehicleById(vehicleId);
+        var vehicle = await _unityOfWork.VehicleRepository.GetVehicleByIdAsync(vehicleId);
 
         if(vehicle is null)
             return NotFound();
@@ -46,7 +46,7 @@ public class VehicleController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CreateVehicle(int carMakeId, int categoryId, VehicleDTO vehicleDTO)
+    public async Task<IActionResult> CreateVehicle(int carMakeId, int categoryId, VehicleDTO vehicleDTO)
     {
         if (vehicleDTO is null)
             return BadRequest();
@@ -56,8 +56,8 @@ public class VehicleController : ControllerBase
         vehicle.CarMakeId = carMakeId;
         vehicle.CategoryId = categoryId;
 
-        var categoryExists = _unityOfWork.CategoryRepository.GetCategoryById(vehicle.CategoryId) != null;
-        var carMakeExists = _unityOfWork.CarMakeRepository.GetCarMakeById(vehicle.CarMakeId) != null;
+        var categoryExists = await _unityOfWork.CategoryRepository.GetCategoryByIdAsync(vehicle.CategoryId) != null;
+        var carMakeExists = await _unityOfWork.CarMakeRepository.GetCarMakeByIdAsync(vehicle.CarMakeId) != null;
 
         if (!categoryExists)
             return BadRequest("Invalid Category ID.");
@@ -66,7 +66,7 @@ public class VehicleController : ControllerBase
             return BadRequest("Invalid Car Make ID.");
 
         var createVehicle = _unityOfWork.VehicleRepository.CreateVehicle(vehicle);
-        _unityOfWork.SaveChanges();
+        await _unityOfWork.SaveChangesAsync();
 
         var createVehicleDTO = _mapper.Map<VehicleDTO>(createVehicle);
 
@@ -74,24 +74,24 @@ public class VehicleController : ControllerBase
     }
 
     [HttpPut("{vehicleId}")]
-    public IActionResult UpdateVehicle(int Id, VehicleDTO vehicleDTO)
+    public async Task<IActionResult> UpdateVehicle(int vehicleId, VehicleDTO vehicleDTO)
     {
-        if(Id != vehicleDTO.Id)
+        if(vehicleId != vehicleDTO.Id)
             return BadRequest("ID mismatch!");
 
         var vehicle = _mapper.Map<Vehicle>(vehicleDTO);
 
         var updateVehicle = _unityOfWork.VehicleRepository.UpdateVehicle(vehicle);
-        _unityOfWork.SaveChanges();
+        await _unityOfWork.SaveChangesAsync();
 
         return NoContent();
     }
 
     [HttpDelete("{vehicleId}")]
-    public IActionResult DeleteVehicle(int vehicleId)
+    public async Task<IActionResult> DeleteVehicle(int vehicleId)
     {
         _unityOfWork.VehicleRepository.DeleteVehicleById(vehicleId);
-        _unityOfWork.SaveChanges();
+        await _unityOfWork.SaveChangesAsync();
 
         return NoContent();
     }

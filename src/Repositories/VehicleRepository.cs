@@ -14,14 +14,14 @@ public class VehicleRepository : IVehicleRepository
         _context = context;
     }
 
-    public IEnumerable<Vehicle> GetVehicles()
+    public async Task<IEnumerable<Vehicle>> GetVehiclesAsync()
     {
-        return _context.Vehicles.ToList();
+        return await _context.Vehicles.ToListAsync();
     }
 
-    public Vehicle GetVehicleById(int id)
+    public async Task<Vehicle> GetVehicleByIdAsync(int id)
     {
-        return _context.Vehicles.FirstOrDefault(v => v.Id == id);
+        return await _context.Vehicles.FirstOrDefaultAsync(v => v.Id == id);
     }
 
     public Vehicle CreateVehicle(Vehicle vehicle)

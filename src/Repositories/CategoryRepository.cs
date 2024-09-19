@@ -14,23 +14,23 @@ public class CategoryRepository : ICategoryRepository
         _context = context;
     }
 
-    public IEnumerable<Category> GetCategories()
+    public async Task<IEnumerable<Category>> GetCategoriesAsync()
     {
-        return _context.Categories.ToList();
+        return await _context.Categories.ToListAsync();
     }
 
-    public IEnumerable<Vehicle> GetVehiclesByCategory(int id)
+    public async Task<IEnumerable<Vehicle>> GetVehiclesByCategoryAsync(int id)
     {
-        return _context.Vehicles
+        return await _context.Vehicles
                    .Where(v => v.CategoryId == id)
                    .Include(v => v.Category)
                    .Include(v => v.CarMake)
-                   .ToList();
+                   .ToListAsync();
     }
 
-    public Category GetCategoryById(int id)
+    public async Task<Category> GetCategoryByIdAsync(int id)
     {
-        return _context.Categories.FirstOrDefault(c => c.Id == id);
+        return await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
     }
 
     public Category CreateCategory(Category category)
