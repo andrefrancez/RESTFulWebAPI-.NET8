@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using VehiclesAPI.Models;
 
 namespace VehiclesAPI.Data;
 
-public class DataContext : DbContext
+public class DataContext : IdentityDbContext
 {
     public DataContext(DbContextOptions<DataContext> options) : base(options)
     {
@@ -16,6 +17,8 @@ public class DataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<CarMake>()
             .Property(cm => cm.Description)
             .HasMaxLength(300)
