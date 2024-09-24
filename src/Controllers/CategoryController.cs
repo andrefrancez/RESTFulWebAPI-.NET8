@@ -8,16 +8,11 @@ namespace VehiclesAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CategoryController : ControllerBase
+public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : ControllerBase
 {
-    private readonly IUnityOfWork _unityOfWork;
-    private readonly IMapper _mapper;
+    private readonly IUnityOfWork _unityOfWork = unityOfWork;
+    private readonly IMapper _mapper = mapper;
 
-    public CategoryController(IUnityOfWork unityOfWork, IMapper mapper)
-    {
-        _unityOfWork = unityOfWork;
-        _mapper = mapper;
-    }
 
     [HttpGet]
     public async Task<IActionResult> GetCategories()
@@ -75,14 +70,14 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut("{categoryId}")]
-    public async Task<IActionResult> UpdateCategory(int Id, CategoryDTO categoryDTO)
+    public async Task<IActionResult> UpdateCategory(int categoryId, CategoryDTO categoryDTO)
     {
-        if(Id != categoryDTO.Id)
+        if(categoryId != categoryDTO.Id)
             return BadRequest("ID mismatch!");
 
         var category = _mapper.Map<Category>(categoryDTO);
 
-        var updateCategory = _unityOfWork.CategoryRepository.UpdateCategory(category);
+        _unityOfWork.CategoryRepository.UpdateCategory(category);
         await _unityOfWork.SaveChangesAsync();
 
         return NoContent();

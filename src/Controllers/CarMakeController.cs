@@ -8,16 +8,10 @@ namespace VehiclesAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CarMakeController : ControllerBase
+public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : ControllerBase
 {
-    private readonly IUnityOfWork _unityOfWork;
-    private readonly IMapper _mapper;
-
-    public CarMakeController(IUnityOfWork unityOfWork, IMapper mapper)
-    {
-        _unityOfWork = unityOfWork;
-        _mapper = mapper;
-    }
+    private readonly IUnityOfWork _unityOfWork = unityOfWork;
+    private readonly IMapper _mapper = mapper;
 
     [HttpGet]
     public async Task<IActionResult> GetCarMakes()
@@ -79,7 +73,7 @@ public class CarMakeController : ControllerBase
 
         var carMake = _mapper.Map<CarMake>(carMakeDTO);
 
-        var updateCarMake = _unityOfWork.CarMakeRepository.UpdateCarMake(carMake);
+        _unityOfWork.CarMakeRepository.UpdateCarMake(carMake);
         await _unityOfWork.SaveChangesAsync();
 
         return NoContent();
