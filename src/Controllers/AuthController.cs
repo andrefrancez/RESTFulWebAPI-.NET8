@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using VehiclesAPI.Dto;
@@ -85,7 +86,7 @@ namespace VehiclesAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new ResponseDTO { Status = "Error", Message = "User creation failed" });
 
-            return Created();
+            return Created("/api/resource/1", new ResponseDTO { Status = "Success", Message = $"Created" });
         }
 
         [HttpPost]
@@ -139,6 +140,51 @@ namespace VehiclesAPI.Controllers
             await _userManager.UpdateAsync(user);
 
             return NoContent();
+        }
+
+        [HttpPost]
+        [Route("CreateRole")]
+        public async Task<IActionResult> CreateRole(string roleName)
+        {
+            var roleExist = await _roleManager.RoleExistsAsync(roleName);
+
+            if (!roleExist)
+            {
+                var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+
+                if (!roleResult.Succeeded)
+                {
+                    var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                    return BadRequest(new ResponseDTO { Status = "Error", Message = $"Issue adding the new '{roleName}' role: {errors}" });
+                }
+
+                return Created("/api/resource/1", new ResponseDTO { Status = "Success", Message = $"role {roleName} created." });
+            }
+
+            return BadRequest(new ResponseDTO { Status = "Error", Message = "Role already exists!" });
+        }
+
+        [HttpPost]
+        [Route("AddUserToRole")]
+        public async Task<IActionResult> AddUserToRole(string email, string roleName)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if(user != null)
+            {
+                var result = await _userManager.AddToRoleAsync(user, roleName);
+
+                if (result.Succeeded)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    return BadRequest(new ResponseDTO { Status = "Error", Message = $"Unable to add user '{user.Email}' to the '{roleName}' role: {errors}" });
+                }
+            }
+            return BadRequest(new ResponseDTO { Status = "Error", Message = "Unable to find user!"});
         }
     }
 }
