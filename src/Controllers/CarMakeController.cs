@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehiclesAPI.Dto;
 using VehiclesAPI.Interfaces;
@@ -14,6 +15,7 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     private readonly IMapper _mapper = mapper;
 
     [HttpGet]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GetCarMakes()
     {
         var carMakes = await _unityOfWork.CarMakeRepository.GetCarMakesAsync();
@@ -24,6 +26,7 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     }
 
     [HttpGet("{Id}")]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GetCarMake(int Id)
     {
         var carMake = await _unityOfWork.CarMakeRepository.GetCarMakeByIdAsync(Id);
@@ -37,6 +40,7 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     }
 
     [HttpGet("vehicle/{Id}", Name = "GetCarMake")]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GetVehiclesByCarMake(int Id)
     {
         var vehicles = await _unityOfWork.CarMakeRepository.GetVehiclesByCarMakeAsync(Id);
@@ -50,6 +54,7 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> CreateCarMake(CarMakeDTO carMakeDTO)
     {
         if (carMakeDTO is null)
@@ -66,6 +71,7 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     }
 
     [HttpPut("{Id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateCarMake(int Id, CarMakeDTO carMakeDTO)
     {
         if (Id != carMakeDTO.Id)
@@ -80,6 +86,7 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     }
 
     [HttpDelete("{Id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteCarMake(int Id)
     {
         _unityOfWork.CarMakeRepository.DeleteCarMakeById(Id);

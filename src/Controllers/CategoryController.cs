@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehiclesAPI.Dto;
 using VehiclesAPI.Interfaces;
@@ -15,6 +16,7 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
 
 
     [HttpGet]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GetCategories()
     {
         var categories = await _unityOfWork.CategoryRepository.GetCategoriesAsync();
@@ -28,6 +30,7 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
     }
 
     [HttpGet("{categoryId}", Name="GetCategory")]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GetCategory(int categoryId)
     {
         var category = await _unityOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
@@ -41,6 +44,7 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
     }
 
     [HttpGet("vehicle/{categoryId}")]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GetVehicleByCategory(int categoryId)
     {
         var vehicles = await _unityOfWork.CategoryRepository.GetVehiclesByCategoryAsync(categoryId);
@@ -54,6 +58,7 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> CreateCategory(CategoryDTO categoryDTO)
     {
         if(categoryDTO is null)
@@ -70,6 +75,7 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
     }
 
     [HttpPut("{categoryId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateCategory(int categoryId, CategoryDTO categoryDTO)
     {
         if(categoryId != categoryDTO.Id)
@@ -84,6 +90,7 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
     }
 
     [HttpDelete("{categoryId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteCategory(int categoryId)
     {
         _unityOfWork.CategoryRepository.DeleteCategoryById(categoryId);

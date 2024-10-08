@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehiclesAPI.Dto;
 using VehiclesAPI.Interfaces;
@@ -15,6 +16,7 @@ public class VehicleController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
 
 
     [HttpGet]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GetVehicles()
     {
         var vehicles = await _unityOfWork.VehicleRepository.GetVehiclesAsync();
@@ -28,6 +30,7 @@ public class VehicleController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     }
 
     [HttpGet("{vehicleId}", Name = "GetVehicle")]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GetVehicle(int vehicleId)
     {
         var vehicle = await _unityOfWork.VehicleRepository.GetVehicleByIdAsync(vehicleId);
@@ -41,6 +44,7 @@ public class VehicleController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> CreateVehicle(int carMakeId, int categoryId, VehicleDTO vehicleDTO)
     {
         if (vehicleDTO is null)
@@ -69,6 +73,7 @@ public class VehicleController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     }
 
     [HttpPut("{vehicleId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateVehicle(int vehicleId, VehicleDTO vehicleDTO)
     {
         if(vehicleId != vehicleDTO.Id)
@@ -83,6 +88,7 @@ public class VehicleController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     }
 
     [HttpDelete("{vehicleId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteVehicle(int vehicleId)
     {
         _unityOfWork.VehicleRepository.DeleteVehicleById(vehicleId);

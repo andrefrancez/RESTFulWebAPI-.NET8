@@ -126,9 +126,9 @@ namespace VehiclesAPI.Controllers
             });
         }
 
-        [Authorize]
         [HttpPost]
         [Route("Revoke/{username}")]
+        [Authorize(Policy = "CEOOnly")]
         public async Task<IActionResult> Revoke(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -144,6 +144,7 @@ namespace VehiclesAPI.Controllers
 
         [HttpPost]
         [Route("CreateRole")]
+        [Authorize(Policy = "CEOOnly")]
         public async Task<IActionResult> CreateRole(string roleName)
         {
             var roleExist = await _roleManager.RoleExistsAsync(roleName);
@@ -166,6 +167,7 @@ namespace VehiclesAPI.Controllers
 
         [HttpPost]
         [Route("AddUserToRole")]
+        [Authorize(Policy = "CEOOnly")]
         public async Task<IActionResult> AddUserToRole(string email, string roleName)
         {
             var user = await _userManager.FindByEmailAsync(email);
