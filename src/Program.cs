@@ -15,18 +15,29 @@ using VehiclesAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+// CORS
+var specificOrigins = "AllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(specificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("https://apirequest.io")
+                .WithMethods("GET");
+        });
+});
+
 builder.Services.AddScoped<ICarMakeRepository, CarMakeRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IUnityOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Vehicles", Version = "v1" });
@@ -61,6 +72,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<DataContext>()
     .AddDefaultTokenProviders();
 
+// JWT Authentication
 var secretKey = builder.Configuration["JWT:SecretKey"] ?? throw new ArgumentException("Invalid secret key!");
 
 builder.Services.AddAuthentication(options =>
@@ -84,6 +96,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
@@ -91,6 +104,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
 });
 
+// Database
 builder.Services.AddDbContext<DataContext>(options => options
     .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -105,6 +119,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(specificOrigins);
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
