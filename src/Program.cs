@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using VehiclesAPI.Data;
 using VehiclesAPI.Interfaces;
 using VehiclesAPI.Mappings;
@@ -28,6 +30,19 @@ builder.Services.AddCors(options =>
             policy.WithOrigins("https://apirequest.io")
                 .WithMethods("GET");
         });
+});
+
+// Rate Limiting
+builder.Services.AddRateLimiter(rateLimiterOp =>
+{
+    rateLimiterOp.AddFixedWindowLimiter("fixedwindow", options =>
+    {
+        options.PermitLimit = 2;
+        options.Window = TimeSpan.FromSeconds(5);
+        options.QueueLimit = 4;
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+    rateLimiterOp.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 builder.Services.AddScoped<ICarMakeRepository, CarMakeRepository>();
@@ -119,7 +134,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
 
+app.UseRateLimiter();
 app.UseCors(specificOrigins);
 
 app.UseAuthentication();

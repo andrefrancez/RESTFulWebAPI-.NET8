@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using VehiclesAPI.Dto;
 using VehiclesAPI.Interfaces;
 using VehiclesAPI.Models;
@@ -9,6 +10,7 @@ namespace VehiclesAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[EnableRateLimiting("fixedwindow")]
 public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : ControllerBase
 {
     private readonly IUnityOfWork _unityOfWork = unityOfWork;
