@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
@@ -33,16 +34,30 @@ builder.Services.AddCors(options =>
 });
 
 // Rate Limiting
-builder.Services.AddRateLimiter(rateLimiterOp =>
+builder.Services.AddRateLimiter(rateLimiterOpt =>
 {
-    rateLimiterOp.AddFixedWindowLimiter("fixedwindow", options =>
+    rateLimiterOpt.AddFixedWindowLimiter("fixedwindow", options =>
     {
         options.PermitLimit = 2;
         options.Window = TimeSpan.FromSeconds(5);
         options.QueueLimit = 4;
         options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
-    rateLimiterOp.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    rateLimiterOpt.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+// Versioning
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader());
+}).AddApiExplorer(apiOpt =>
+{
+    apiOpt.GroupNameFormat = "'v'VVV";
+    apiOpt.SubstituteApiVersionInUrl = true;
 });
 
 builder.Services.AddScoped<ICarMakeRepository, CarMakeRepository>();

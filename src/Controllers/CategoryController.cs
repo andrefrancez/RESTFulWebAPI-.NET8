@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -8,7 +9,8 @@ using VehiclesAPI.Models;
 
 namespace VehiclesAPI.Controllers;
 
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [EnableRateLimiting("fixedwindow")]
 public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : ControllerBase
