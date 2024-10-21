@@ -93,7 +93,11 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteCarMake(int Id)
     {
-        _unityOfWork.CarMakeRepository.DeleteCarMakeById(Id);
+        var carMake = await _unityOfWork.CarMakeRepository.GetCarMakeByIdAsync(Id);
+        if (carMake == null)
+            return NotFound();
+        
+        _unityOfWork.CarMakeRepository.DeleteCarMakeById(carMake.Id);
         await _unityOfWork.SaveChangesAsync();
 
         return NoContent();
