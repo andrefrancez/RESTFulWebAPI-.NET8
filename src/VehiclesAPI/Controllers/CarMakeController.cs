@@ -24,6 +24,9 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     {
         var carMakes = await _unityOfWork.CarMakeRepository.GetCarMakesAsync();
 
+        if(!carMakes.Any())
+            return NotFound("No Car Makes found.");
+
         var carMakesDTO = _mapper.Map<IEnumerable<CarMakeDTO>>(carMakes);
 
         return Ok(carMakesDTO);
@@ -36,7 +39,7 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
         var carMake = await _unityOfWork.CarMakeRepository.GetCarMakeByIdAsync(Id);
 
         if (carMake is null)
-            return NotFound();
+            return NotFound($"Car Make with ID {Id} not found.");
 
         var carMakeDTO = _mapper.Map<CarMakeDTO>(carMake);
 
@@ -50,7 +53,7 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
         var vehicles = await _unityOfWork.CarMakeRepository.GetVehiclesByCarMakeAsync(Id);
 
         if (vehicles is null)
-            return NotFound();
+            return NotFound("No vehicles found for the specified car make.");
 
         var vehiclesDTO = _mapper.Map<IEnumerable<VehicleDTO>>(vehicles);
 
@@ -62,7 +65,7 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     public async Task<IActionResult> CreateCarMake(CarMakeDTO carMakeDTO)
     {
         if (carMakeDTO is null)
-            return BadRequest();
+            return BadRequest("Data cannot be null.");
 
         var carMake = _mapper.Map<CarMake>(carMakeDTO);
 
@@ -95,7 +98,7 @@ public class CarMakeController(IUnityOfWork unityOfWork, IMapper mapper) : Contr
     {
         var carMake = await _unityOfWork.CarMakeRepository.GetCarMakeByIdAsync(Id);
         if (carMake == null)
-            return NotFound();
+            return NotFound($"Car Make with ID {Id} not found.");
         
         _unityOfWork.CarMakeRepository.DeleteCarMakeById(carMake.Id);
         await _unityOfWork.SaveChangesAsync();

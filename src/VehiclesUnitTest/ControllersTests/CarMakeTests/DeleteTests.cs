@@ -42,7 +42,7 @@ public class DeleteTests
         var result = await _controller.DeleteCarMake(carMake.Id);
 
         // Assert
-        Assert.IsType<NoContentResult>(result);
+        result.Should().BeOfType<NoContentResult>();
 
         _mockCarMake
             .Verify(x => x.CarMakeRepository.DeleteCarMakeById(carMake.Id), Times.Once);
@@ -60,7 +60,7 @@ public class DeleteTests
         var result = await _controller.DeleteCarMake(carMake.Id);
 
         // Assert
-        result.Should().BeOfType<NotFoundResult>();
+        result.Should().BeOfType<NotFoundObjectResult>();
 
         _mockCarMake
             .Verify(x => x.CarMakeRepository.GetCarMakeByIdAsync(carMake.Id), Times.Once);
