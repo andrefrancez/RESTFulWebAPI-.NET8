@@ -25,8 +25,8 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
     {
         var categories = await _unityOfWork.CategoryRepository.GetCategoriesAsync();
 
-        if (categories is null)
-            return NotFound();
+        if (!categories.Any())
+            return NotFound("No Categories found.");
 
         var categoriesDTO = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
 
@@ -40,7 +40,7 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
         var category = await _unityOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
 
         if(category is null)
-            return NotFound();
+            return NotFound($"Category with ID {categoryId} not found.");
 
         var categoryDTO = _mapper.Map<IEnumerable<CategoryDTO>>(category);
 
@@ -54,9 +54,9 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
         var vehicles = await _unityOfWork.CategoryRepository.GetVehiclesByCategoryAsync(categoryId);
 
         if(vehicles is null)
-            return NotFound();
+            return NotFound("No vehicles found for the specified category.");
 
-        var vehiclesDTO = _mapper.Map<IEnumerable<Vehicle>>(vehicles);
+        var vehiclesDTO = _mapper.Map<IEnumerable<VehicleDTO>>(vehicles);
 
         return Ok(vehiclesDTO);
     }
@@ -66,7 +66,7 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
     public async Task<IActionResult> CreateCategory(CategoryDTO categoryDTO)
     {
         if(categoryDTO is null)
-            return BadRequest();
+            return BadRequest("Data cannot be null.");
 
         var category = _mapper.Map<Category>(categoryDTO);
 
@@ -97,6 +97,10 @@ public class CategoryController(IUnityOfWork unityOfWork, IMapper mapper) : Cont
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteCategory(int categoryId)
     {
+        var category = await _unityOfWork.CarMakeRepository.GetCarMakeByIdAsync(categoryId);
+        if (category == null)
+            return NotFound($"Category with ID {categoryId} not found.");
+
         _unityOfWork.CategoryRepository.DeleteCategoryById(categoryId);
         await _unityOfWork.SaveChangesAsync();
 
